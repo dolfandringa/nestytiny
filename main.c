@@ -7,10 +7,7 @@
 
 #define LED PB0
 
-#define USBMIN PD3
-#define USBPLUS PD2
-
-PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
+const PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
     0x09, 0x06,                    // USAGE (Keyboard)
     0xa1, 0x01,                    // COLLECTION (Application)
@@ -65,8 +62,6 @@ usbMsgLen_t usbFunctionSetup(uchar data[8]) {
             keyboard_report.modifier = 0;
             keyboard_report.keycode[0] = 0;
             return sizeof(keyboard_report);
-        case USBRQ_HID_SET_REPORT: // if wLength == 1, should be LED state
-            return (rq->wLength.word == 1) ? USB_NO_MSG : 0;
         case USBRQ_HID_GET_IDLE: // send idle rate to PC as required by spec
             usbMsgPtr = &idleRate;
             return 1;
@@ -93,7 +88,7 @@ void buildReport(uchar send_key) {
 #define STATE_RELEASE_KEY 2
 
 int main() {
-    uchar i, button_release_counter = 0, state = STATE_WAIT;
+    uchar i;
 
     DDRB = 1 << LED;
 
@@ -103,7 +98,10 @@ int main() {
     wdt_enable(WDTO_1S); // enable 1s watchdog timer
 
 
-    DDRD = (1<<USBMIN)|(1<<USBPLUS);
+    DDRD = 0;
+
+    PORTB = 0;
+    PORTD = 0;
     
     usbInit();
         
@@ -115,20 +113,22 @@ int main() {
     usbDeviceConnect();
     
     sei();
+    int loopcount;
+    loopcount = 0;
 
     while(1) {
         wdt_reset();
         usbPoll();
 
         PORTB = (1<<LED);
-        for(i = 0; i<500; i++) { // wait 1000 ms
+        for(i = 0; i<25; i++) { // wait 50 ms
             wdt_reset(); // keep the watchdog happy
             _delay_ms(2);
         }
-        PORTB = ~(1<<LED);
-        for(i = 0; i<500; i++) { // wait 1000 ms
-            wdt_reset(); // keep the watchdog happy
-            _delay_ms(2);
+        loopcount++;
+        if(loopcount == 19){
+            loopcount = 0;
+            PORTB ^= 1<<LED;
         }
     }
         
