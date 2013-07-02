@@ -17,11 +17,11 @@
 #                   default_serial = "avrdoper"
 # FUSES ........ Parameters for avrdude to flash the fuses appropriately.
 
-DEVICE     = attiny2313
-CLOCK      = 12000000
-PROGRAMMER = -c usbtiny -p attiny2313
+DEVICE     = atmega328p
+CLOCK      = 16000000
+PROGRAMMER = -c usbtiny 
 OBJECTS    = main.o
-FUSES      = -U lfuse:w:0xcf:m -U hfuse:w:0xdf:m
+FUSES      = -U lfuse:w:0xff:m -U hfuse:w:0xda:m #-U efuse:w:0xff:m
 INC        = -I ./usbdrv/
 
 # For computing fuse byte values for other devices and options see

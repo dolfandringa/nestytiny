@@ -18,11 +18,11 @@
 # FUSES ........ Parameters for avrdude to flash the fuses appropriately.
 
 DEVICE     = atmega328p
-CLOCK      = 12000000
+CLOCK      = 16000000
 PROGRAMMER = -c usbtiny 
 OBJECTS    = main.o
-FUSES      = -U lfuse:w:0xcf:m -U hfuse:w:0xd9:m
-INC        = -I ./usbdrv/
+FUSES      = -U lfuse:w:0xff:m -U hfuse:w:0xda:m #-U efuse:w:0xff:m 
+INC        = 
 
 # For computing fuse byte values for other devices and options see
 # the fuse bit calculator at http://www.engbedded.com/fusecalc/
@@ -50,7 +50,7 @@ clean:
 
 # file targets:
 main.elf: $(OBJECTS)
-	$(COMPILE) -c usbdrv/usbdrv.c -o usbdrv/usbdrv.o -o main.elf $(OBJECTS)
+	$(COMPILE) -o main.elf $(OBJECTS)
 
 main.hex: main.elf
 	rm -f main.hex
@@ -66,13 +66,13 @@ disasm:	main.elf
 cpp:
 	$(COMPILE) -E main.c
 
-$(OBJECTS): usbdrv/usbconfig.h
+#$(OBJECTS): usbdrv/usbconfig.h
 
 .c.o:
 	$(COMPILE) -c $< -o $@
 
 .S.o:
-	$(COMPILE) -x assembler-with-cpp -c usbdrv/usbdrvasm.S -o usbdrv/usbdrvasm.o -c $< -o $@
+	$(COMPILE) -x assembler-with-cpp -c $< -o $@
 # "-x assembler-with-cpp" should not be necessary since this is the default
 # file type for the .S (with capital S) extension. However, upper case
 # characters are not always preserved on Windows. To ensure WinAVR

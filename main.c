@@ -5,7 +5,7 @@
 
 #include "usbdrv.h"
 
-#define LED PB0
+#define LED PB1
 
 const PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
